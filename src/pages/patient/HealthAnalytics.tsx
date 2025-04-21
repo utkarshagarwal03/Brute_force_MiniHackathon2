@@ -15,7 +15,7 @@ import {
 // Simple implementation of Card component
 const Card = ({ children, className }) => {
   return (
-    <div className={'bg-white rounded-lg shadow-md ${className}'}>
+    <div className={`bg-white rounded-lg shadow-md ${className}`}>
       {children}
     </div>
   );
@@ -321,7 +321,7 @@ export default function HealthAnalytics() {
             <div className="text-center p-4 bg-blue-100 rounded-lg">
               <h3 className="text-lg font-medium text-blue-800">BMI</h3>
               <p className="text-3xl font-bold text-blue-600">{calculateBMI()}</p>
-              <p className={text-sm font-medium ${getBMIStatus().color}}>{getBMIStatus().status}</p>
+              <p className={`text-sm font-medium ${getBMIStatus().color}`}>{getBMIStatus().status}</p>
             </div>
             <div className="text-center p-4 bg-blue-100 rounded-lg">
               <h3 className="text-lg font-medium text-blue-800">Daily Calories</h3>
@@ -574,10 +574,10 @@ export default function HealthAnalytics() {
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
-                        label={({ name, percent }) => ${name} ${(percent * 100).toFixed(0)}%}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       >
                         {nutritionData.map((entry, index) => (
-                          <Cell key={cell-${index}} fill={COLORS[index % COLORS.length]} />
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
                       <Tooltip />
@@ -588,7 +588,7 @@ export default function HealthAnalytics() {
                   <p className="text-sm text-blue-900 mb-1">
                     Based on your current BMI and goals, we recommend:
                   </p>
-                  <p className={text-sm font-medium ${getCalorieRecommendation().color}}>
+                  <p className={`text-sm font-medium ${getCalorieRecommendation().color}`}>
                     {getCalorieRecommendation().recommendation}
                   </p>
                   <p className="text-sm text-blue-900 mt-2">
@@ -607,10 +607,10 @@ export default function HealthAnalytics() {
                 {healthData.length >= 2 && (
                   <p>
                     {healthData[healthData.length - 1].weight > healthData[healthData.length - 2].weight 
-                      ? "⬆ Your weight has increased since last entry. " 
+                      ? "⬆️ Your weight has increased since last entry. " 
                       : healthData[healthData.length - 1].weight < healthData[healthData.length - 2].weight
-                        ? "⬇ Your weight has decreased since last entry. "
-                        : "➡ Your weight remains stable. "}
+                        ? "⬇️ Your weight has decreased since last entry. "
+                        : "➡️ Your weight remains stable. "}
                     Current: {healthData[healthData.length - 1].weight} kg
                   </p>
                 )}
@@ -620,9 +620,9 @@ export default function HealthAnalytics() {
                 {healthData.length >= 1 && (
                   <p>
                     {healthData[healthData.length - 1].bloodPressure > 130
-                      ? "⚠ Blood pressure is above recommended levels."
+                      ? "⚠️ Blood pressure is above recommended levels."
                       : healthData[healthData.length - 1].bloodPressure < 90
-                        ? "⚠ Blood pressure is below recommended levels."
+                        ? "⚠️ Blood pressure is below recommended levels."
                         : "✅ Blood pressure is within normal range."}
                   </p>
                 )}
@@ -632,9 +632,9 @@ export default function HealthAnalytics() {
                 {healthData.length >= 1 && (
                   <p>
                     {healthData[healthData.length - 1].sleep < 6
-                      ? "⚠ You might need more sleep for optimal health."
+                      ? "⚠️ You might need more sleep for optimal health."
                       : healthData[healthData.length - 1].sleep > 9
-                        ? "ℹ You're sleeping more than average."
+                        ? "ℹ️ You're sleeping more than average."
                         : "✅ Your sleep duration is within recommended range."}
                   </p>
                 )}
@@ -644,9 +644,9 @@ export default function HealthAnalytics() {
                 {healthData.length >= 1 && (
                   <p>
                     {healthData[healthData.length - 1].calories > 2500
-                      ? "⚠ Your calorie intake is higher than recommended."
+                      ? "⚠️ Your calorie intake is higher than recommended."
                       : healthData[healthData.length - 1].calories < 1500
-                        ? "⚠ Your calorie intake is lower than recommended."
+                        ? "⚠️ Your calorie intake is lower than recommended."
                         : "✅ Your calorie intake is within a healthy range."}
                   </p>
                 )}
