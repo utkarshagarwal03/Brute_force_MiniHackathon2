@@ -12,7 +12,7 @@ import {
 // Simple implementation of Card component
 const Card = ({ children, className }) => {
   return (
-    <div className={bg-white rounded-lg shadow-md ${className}}>
+    <div className={`bg-white rounded-lg shadow-md ${className}`}>
       {children}
     </div>
   );
@@ -51,7 +51,7 @@ const Sidebar = () => {
     { name: "Health Analytics", icon: "📈", active: true },
     { name: "Appointments", icon: "📅" },
     { name: "Medications", icon: "💊" },
-    { name: "Settings", icon: "⚙" },
+    { name: "Settings", icon: "⚙️" },
   ];
 
   return (
@@ -344,10 +344,10 @@ export default function HealthAnalytics() {
                   {healthData.length >= 2 && (
                     <p>
                       {healthData[healthData.length - 1].weight > healthData[healthData.length - 2].weight 
-                        ? "⬆ Your weight has increased since last entry. " 
+                        ? "⬆️ Your weight has increased since last entry. " 
                         : healthData[healthData.length - 1].weight < healthData[healthData.length - 2].weight
-                          ? "⬇ Your weight has decreased since last entry. "
-                          : "➡ Your weight remains stable. "}
+                          ? "⬇️ Your weight has decreased since last entry. "
+                          : "➡️ Your weight remains stable. "}
                       Current: {healthData[healthData.length - 1].weight} kg
                     </p>
                   )}
@@ -357,9 +357,9 @@ export default function HealthAnalytics() {
                   {healthData.length >= 1 && (
                     <p>
                       {healthData[healthData.length - 1].bloodPressure > 130
-                        ? "⚠ Blood pressure is above recommended levels."
+                        ? "⚠️ Blood pressure is above recommended levels."
                         : healthData[healthData.length - 1].bloodPressure < 90
-                          ? "⚠ Blood pressure is below recommended levels."
+                          ? "⚠️ Blood pressure is below recommended levels."
                           : "✅ Blood pressure is within normal range."}
                     </p>
                   )}
@@ -369,9 +369,9 @@ export default function HealthAnalytics() {
                   {healthData.length >= 1 && (
                     <p>
                       {healthData[healthData.length - 1].sleep < 6
-                        ? "⚠ You might need more sleep for optimal health."
+                        ? "⚠️ You might need more sleep for optimal health."
                         : healthData[healthData.length - 1].sleep > 9
-                          ? "ℹ You're sleeping more than average."
+                          ? "ℹ️ You're sleeping more than average."
                           : "✅ Your sleep duration is within recommended range."}
                     </p>
                   )}
