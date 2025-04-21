@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Search, LifeBuoy, Heart, BandageIcon, ThermometerIcon, Pill, AlertTriangle, Droplet } from "lucide-react";
+import { Search, LifeBuoy, Heart, BandageIcon, ThermometerIcon, Pill, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,40 +9,6 @@ import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 // First aid categories and procedures
 const firstAidData = [
-  {
-    id: "nosebleed",
-    title: "Nosebleeds",
-    icon: Droplet,
-    color: "text-rose-500",
-    bgColor: "bg-rose-50",
-    content: [
-      {
-        title: "Immediate steps",
-        steps: [
-          "Stay calm and sit upright, leaning slightly forward to prevent swallowing blood.",
-          "Pinch the soft part of your nose (just below the bony bridge) firmly with your thumb and index finger.",
-          "Breathe through your mouth and continue pinching for 10-15 minutes without letting go.",
-          "Apply a cold compress or ice pack to the nose or back of the neck to constrict blood vessels."
-        ]
-      },
-      {
-        title: "After bleeding stops",
-        steps: [
-          "Avoid blowing your nose or bending over for several hours.",
-          "Keep your head elevated and rest.",
-          "Use a saline nasal spray to keep the nasal passages moist if needed."
-        ]
-      },
-      {
-        title: "Seek medical attention if",
-        steps: [
-          "The bleeding lasts more than 20 minutes.",
-          "You feel lightheaded, faint, or weak.",
-          "The nosebleed occurred after an injury (e.g., car accident, fall)."
-        ]
-      }
-    ]
-  },
   {
     id: "cuts",
     title: "Cuts & Wounds",
@@ -180,17 +146,17 @@ export default function FirstAid() {
   useRequireAuth("patient");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  
-  const filteredData = searchTerm 
-    ? firstAidData.filter(category => 
+
+  const filteredData = searchTerm
+    ? firstAidData.filter(category =>
         category.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        category.content.some(item => 
+        category.content.some(item =>
           item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.steps.some(step => step.toLowerCase().includes(searchTerm.toLowerCase()))
         )
       )
     : firstAidData;
-  
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar userType="patient" />
@@ -217,17 +183,17 @@ export default function FirstAid() {
                 Find step-by-step guides for common first aid situations. In case of serious emergency, always call 911.
               </p>
             </div>
-            
+
             {selectedCategory ? (
               <div className="space-y-6">
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   className="mb-4"
                   onClick={() => setSelectedCategory(null)}
                 >
                   ← Back to all categories
                 </Button>
-                
+
                 {firstAidData.filter(category => category.id === selectedCategory).map(category => (
                   <div key={category.id} className="space-y-6">
                     <div className="flex items-center">
@@ -236,7 +202,7 @@ export default function FirstAid() {
                       </div>
                       <h2 className="text-2xl font-bold">{category.title}</h2>
                     </div>
-                    
+
                     {category.content.map((item, index) => (
                       <Card key={index}>
                         <CardHeader>
@@ -257,8 +223,8 @@ export default function FirstAid() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filteredData.map(category => (
-                  <Card 
-                    key={category.id} 
+                  <Card
+                    key={category.id}
                     className="cursor-pointer hover:shadow-md transition-shadow"
                     onClick={() => setSelectedCategory(category.id)}
                   >
@@ -283,19 +249,20 @@ export default function FirstAid() {
                 ))}
               </div>
             )}
-            
+
             <div className="mt-10 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <div className="flex items-start">
                 <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2 mt-0.5" />
                 <div>
                   <h3 className="font-medium text-yellow-800">Important Notice</h3>
                   <p className="text-sm text-yellow-700">
-                    This first aid guide is for informational purposes only and is not a substitute for professional medical advice, 
+                    This first aid guide is for informational purposes only and is not a substitute for professional medical advice,
                     diagnosis, or treatment. In case of emergency, call 112 or your local emergency number immediately.
                   </p>
                 </div>
               </div>
             </div>
+
           </div>
         </main>
       </div>
