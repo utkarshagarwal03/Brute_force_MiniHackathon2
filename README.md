@@ -1,1 +1,0 @@
-# Brute_force_MiniHackathon2
