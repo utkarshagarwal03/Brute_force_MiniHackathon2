@@ -100,28 +100,28 @@ export default function HealthDashboard() {
         <nav className="bg-blue-100 p-4 md:w-64">
           <ul>
             <li 
-              className={flex items-center p-3 mb-2 rounded cursor-pointer ${activeTab === 'sleep' ? 'bg-blue-500 text-white' : 'bg-blue-200 hover:bg-blue-300'}}
+              className={'flex items-center p-3 mb-2 rounded cursor-pointer ${activeTab === 'sleep' ? 'bg-blue-500 text-white' : 'bg-blue-200 hover:bg-blue-300'}'}
               onClick={() => setActiveTab('sleep')}
             >
               <Moon size={20} className="mr-2" />
               <span>Sleep Tracker</span>
             </li>
             <li 
-              className={flex items-center p-3 mb-2 rounded cursor-pointer ${activeTab === 'weight' ? 'bg-blue-500 text-white' : 'bg-blue-200 hover:bg-blue-300'}}
+              className={'flex items-center p-3 mb-2 rounded cursor-pointer ${activeTab === 'weight' ? 'bg-blue-500 text-white' : 'bg-blue-200 hover:bg-blue-300'}'}
               onClick={() => setActiveTab('weight')}
             >
               <Scale size={20} className="mr-2" />
               <span>Weight Tracker</span>
             </li>
             <li 
-              className={flex items-center p-3 mb-2 rounded cursor-pointer ${activeTab === 'bp' ? 'bg-blue-500 text-white' : 'bg-blue-200 hover:bg-blue-300'}}
+              className={'flex items-center p-3 mb-2 rounded cursor-pointer ${activeTab === 'bp' ? 'bg-blue-500 text-white' : 'bg-blue-200 hover:bg-blue-300'}'}
               onClick={() => setActiveTab('bp')}
             >
               <Heart size={20} className="mr-2" />
               <span>Blood Pressure</span>
             </li>
             <li 
-              className={flex items-center p-3 mb-2 rounded cursor-pointer ${activeTab === 'diet' ? 'bg-blue-500 text-white' : 'bg-blue-200 hover:bg-blue-300'}}
+              className={'flex items-center p-3 mb-2 rounded cursor-pointer ${activeTab === 'diet' ? 'bg-blue-500 text-white' : 'bg-blue-200 hover:bg-blue-300'}'}
               onClick={() => setActiveTab('diet')}
             >
               <Apple size={20} className="mr-2" />
