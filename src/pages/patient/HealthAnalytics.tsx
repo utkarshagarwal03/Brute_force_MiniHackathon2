@@ -15,7 +15,7 @@ import {
 // Simple implementation of Card component
 const Card = ({ children, className }) => {
   return (
-    <div className={bg-white rounded-lg shadow-md ${className}}>
+    <div className={'bg-white rounded-lg shadow-md ${className}'}>
       {children}
     </div>
   );
