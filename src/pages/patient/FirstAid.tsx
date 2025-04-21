@@ -1,11 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Search, LifeBuoy, Heart, BandageIcon, ThermometerIcon, Pill, AlertTriangle } from "lucide-react";
+import { Search, LifeBuoy, Heart, BandageIcon, ThermometerIcon, Pill, AlertTriangle, Volume2, VolumeX } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+
+// Text-to-speech hook implementation
+// Place this in @/hooks/useTextToSpeech.js
+export const useTextToSpeech = () => {
+  const [speaking, setSpeaking] = useState(false);
+  const [supported, setSupported] = useState(false);
+  
+  useEffect(() => {
+    // Check if browser supports speech synthesis
+    if ('speechSynthesis' in window) {
+      setSupported(true);
+    }
+  }, []);
+  
+  const speak = (text) => {
+    if (!supported) return;
+    
+    // Cancel any ongoing speech
+    stop();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.onend = () => setSpeaking(false);
+    utterance.onerror = () => setSpeaking(false);
+    
+    setSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+  };
+  
+  const stop = () => {
+    if (!supported) return;
+    
+    window.speechSynthesis.cancel();
+    setSpeaking(false);
+  };
+  
+  return { speak, stop, speaking, supported };
+};
 
 // First aid categories and procedures
 const firstAidData = [
@@ -146,6 +184,7 @@ export default function FirstAid() {
   useRequireAuth("patient");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const { speak, stop, speaking, supported } = useTextToSpeech();
 
   const filteredData = searchTerm
     ? firstAidData.filter(category =>
@@ -156,6 +195,32 @@ export default function FirstAid() {
         )
       )
     : firstAidData;
+
+  // Generate speech text for a procedure
+  const generateSpeechText = (category, procedure) => {
+    let speechText = `${procedure.title}. `;
+    procedure.steps.forEach((step, index) => {
+      speechText += `Step ${index + 1}: ${step}. `;
+    });
+    return speechText;
+  };
+
+  // Handle speaking for a full category
+  const speakCategory = (category) => {
+    const categoryData = firstAidData.find(c => c.id === category);
+    if (!categoryData) return;
+    
+    let speechText = `${categoryData.title} procedures. `;
+    categoryData.content.forEach(procedure => {
+      speechText += `${procedure.title}. `;
+      procedure.steps.forEach((step, index) => {
+        speechText += `Step ${index + 1}: ${step}. `;
+      });
+      speechText += " Next procedure. ";
+    });
+    
+    speak(speechText);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -182,17 +247,45 @@ export default function FirstAid() {
               <p className="text-sm text-muted-foreground mt-2">
                 Find step-by-step guides for common first aid situations. In case of serious emergency, always call 911.
               </p>
+              {supported && (
+                <div className="mt-2 text-sm text-muted-foreground flex items-center">
+                  <Volume2 className="h-4 w-4 mr-1" />
+                  <span>Text-to-speech available. Click the speaker icon on any procedure to hear instructions.</span>
+                </div>
+              )}
             </div>
 
             {selectedCategory ? (
               <div className="space-y-6">
-                <Button
-                  variant="ghost"
-                  className="mb-4"
-                  onClick={() => setSelectedCategory(null)}
-                >
-                  ← Back to all categories
-                </Button>
+                <div className="flex justify-between items-center mb-4">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setSelectedCategory(null)}
+                  >
+                    ← Back to all categories
+                  </Button>
+                  
+                  {supported && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => speaking ? stop() : speakCategory(selectedCategory)}
+                      className="flex items-center"
+                    >
+                      {speaking ? (
+                        <>
+                          <VolumeX className="h-4 w-4 mr-2" />
+                          Stop Audio
+                        </>
+                      ) : (
+                        <>
+                          <Volume2 className="h-4 w-4 mr-2" />
+                          Read All Instructions
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
 
                 {firstAidData.filter(category => category.id === selectedCategory).map(category => (
                   <div key={category.id} className="space-y-6">
@@ -205,8 +298,22 @@ export default function FirstAid() {
 
                     {category.content.map((item, index) => (
                       <Card key={index}>
-                        <CardHeader>
+                        <CardHeader className="flex flex-row items-start justify-between pb-2">
                           <CardTitle>{item.title}</CardTitle>
+                          {supported && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => speaking ? stop() : speak(generateSpeechText(category.id, item))}
+                            >
+                              {speaking ? (
+                                <VolumeX className="h-4 w-4" />
+                              ) : (
+                                <Volume2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
                         </CardHeader>
                         <CardContent>
                           <ol className="list-decimal pl-5 space-y-2">
@@ -242,8 +349,20 @@ export default function FirstAid() {
                         {category.content[0].title}{category.content.length > 1 ? ' and more...' : ''}
                       </p>
                     </CardContent>
-                    <CardFooter>
-                      <Button variant="ghost" className="w-full">View Guide</Button>
+                    <CardFooter className="flex justify-between">
+                      <Button variant="ghost" className="flex-1">View Guide</Button>
+                      {supported && (
+                        <Button 
+                          variant="ghost" 
+                          className="ml-2 p-0 h-8 w-8"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            speaking ? stop() : speakCategory(category.id);
+                          }}
+                        >
+                          <Volume2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </CardFooter>
                   </Card>
                 ))}
