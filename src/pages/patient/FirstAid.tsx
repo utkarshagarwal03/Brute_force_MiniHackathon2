@@ -1,20 +1,29 @@
 import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Search, LifeBuoy, Heart, BandageIcon, ThermometerIcon, Pill, AlertTriangle } from "lucide-react";
+import { 
+  Search, 
+  LifeBuoy, 
+  Heart, 
+  Scissors, 
+  Flame, 
+  AlertTriangle, 
+  ChevronLeft,
+  Info
+} from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 
-// First aid categories and procedures
+// First aid procedures data
 const firstAidData = [
   {
     id: "cuts",
     title: "Cuts & Wounds",
-    icon: BandageIcon,
-    color: "text-red-500",
-    bgColor: "bg-red-50",
+    icon: Scissors,
+    color: "text-red-600",
+    bgColor: "bg-red-100",
     content: [
       {
         title: "Clean the wound",
@@ -46,9 +55,9 @@ const firstAidData = [
   {
     id: "burns",
     title: "Burns",
-    icon: ThermometerIcon,
+    icon: Flame,
     color: "text-orange-500",
-    bgColor: "bg-orange-50",
+    bgColor: "bg-orange-100",
     content: [
       {
         title: "For minor burns (redness, mild swelling)",
@@ -76,8 +85,8 @@ const firstAidData = [
     id: "choking",
     title: "Choking",
     icon: AlertTriangle,
-    color: "text-yellow-500",
-    bgColor: "bg-yellow-50",
+    color: "text-yellow-600",
+    bgColor: "bg-yellow-100",
     content: [
       {
         title: "If the person can speak or cough",
@@ -104,8 +113,8 @@ const firstAidData = [
     id: "cpr",
     title: "CPR Basics",
     icon: Heart,
-    color: "text-pink-500",
-    bgColor: "bg-pink-50",
+    color: "text-pink-600",
+    bgColor: "bg-pink-100",
     content: [
       {
         title: "Check responsiveness",
@@ -147,6 +156,7 @@ export default function FirstAid() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
 
+  // Filter categories based on search term
   const filteredData = searchTerm
     ? firstAidData.filter(category =>
         category.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -158,63 +168,66 @@ export default function FirstAid() {
     : firstAidData;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar userType="patient" />
       <div className="flex flex-1">
         <Sidebar userType="patient" />
         <main className="flex-1 p-4 md:p-8">
           <div className="max-w-6xl mx-auto">
-            <div className="flex items-center mb-6">
-              <LifeBuoy className="h-8 w-8 text-primary mr-2" />
-              <h1 className="text-3xl font-bold">First Aid Assistant</h1>
-            </div>
-
-            <div className="mb-8">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            {/* Header */}
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+              <div className="flex items-center mb-4">
+                <LifeBuoy className="h-8 w-8 text-blue-600 mr-3" />
+                <h1 className="text-3xl font-bold text-gray-800">First Aid Assistant</h1>
+              </div>
+              
+              {/* Search box */}
+              <div className="relative max-w-lg">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <Input
-                  className="pl-10"
+                  className="pl-10 bg-gray-50 border-gray-200"
                   placeholder="Search for first aid procedures..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <p className="text-sm text-muted-foreground mt-2">
-                Find step-by-step guides for common first aid situations. In case of serious emergency, always call 911.
+              <p className="text-sm text-gray-500 mt-2">
+                Find step-by-step guides for common first aid situations. For serious emergencies, always call emergency services.
               </p>
             </div>
 
+            {/* Category detail view */}
             {selectedCategory ? (
               <div className="space-y-6">
                 <Button
-                  variant="ghost"
-                  className="mb-4"
+                  variant="outline"
+                  className="mb-4 flex items-center"
                   onClick={() => setSelectedCategory(null)}
                 >
-                  ← Back to all categories
+                  <ChevronLeft className="h-4 w-4 mr-1" /> Back to all categories
                 </Button>
 
                 {firstAidData.filter(category => category.id === selectedCategory).map(category => (
                   <div key={category.id} className="space-y-6">
-                    <div className="flex items-center">
-                      <div className={p-3 rounded-full ${category.bgColor} mr-3}>
+                    <div className="flex items-center bg-white p-4 rounded-lg shadow-sm">
+                      <div className={p-3 rounded-full ${category.bgColor} mr-4}>
                         {(() => {
                           const Icon = category.icon;
                           return <Icon className={h-6 w-6 ${category.color}} />;
                         })()}
                       </div>
-                      <h2 className="text-2xl font-bold">{category.title}</h2>
+                      <h2 className="text-2xl font-bold text-gray-800">{category.title}</h2>
                     </div>
 
                     {category.content.map((item, index) => (
-                      <Card key={index}>
-                        <CardHeader>
-                          <CardTitle>{item.title}</CardTitle>
+                      <Card key={index} className="border-0 shadow-sm">
+                        <CardHeader className="bg-gray-50 border-b">
+                          <CardTitle className="text-lg">{item.title}</CardTitle>
                         </CardHeader>
-                        <CardContent>
-                          <ol className="list-decimal pl-5 space-y-2">
+                        <CardContent className="pt-4">
+                          <ol className="list-decimal pl-5 space-y-3">
                             {item.steps.map((step, stepIdx) => (
-                              <li key={stepIdx} className="pl-1">{step}</li>
+                              <li key={stepIdx} className="pl-1 text-gray-700">{step}</li>
                             ))}
                           </ol>
                         </CardContent>
@@ -224,51 +237,60 @@ export default function FirstAid() {
                 ))}
               </div>
             ) : (
+              /* Category grid */
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filteredData.map(category => (
-                  <Card
-                    key={category.id}
-                    className="cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => setSelectedCategory(category.id)}
-                  >
-                    <CardHeader className="pb-2">
-                      <div className={p-3 rounded-full ${category.bgColor} mr-3}>
-                        {(() => {
-                          const Icon = category.icon;
-                          return <Icon className={h-6 w-6 ${category.color}} />;
-                        })()}
-                      </div>
-                      <CardTitle className="mt-2">{category.title}</CardTitle>
-                      <CardDescription>
-                        {category.content.length} procedure{category.content.length > 1 ? 's' : ''}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground">
-                        {category.content[0].title}{category.content.length > 1 ? ' and more...' : ''}
-                      </p>
-                    </CardContent>
-                    <CardFooter>
-                      <Button variant="ghost" className="w-full">View Guide</Button>
-                    </CardFooter>
-                  </Card>
-                ))}
+                {filteredData.length > 0 ? (
+                  filteredData.map(category => (
+                    <Card 
+                      key={category.id}
+                      className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
+                      onClick={() => setSelectedCategory(category.id)}
+                    >
+                      <CardHeader className={${category.bgColor} pb-2}>
+                        <div className="flex items-center mb-2">
+                          {(() => {
+                            const Icon = category.icon;
+                            return <Icon className={h-6 w-6 ${category.color}} />;
+                          })()}
+                          <CardTitle className="ml-2 text-lg">{category.title}</CardTitle>
+                        </div>
+                        <CardDescription className="text-gray-600">
+                          {category.content.length} procedure{category.content.length > 1 ? 's' : ''}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-gray-600">
+                          {category.content[0].title}{category.content.length > 1 ? ' and more...' : ''}
+                        </p>
+                      </CardContent>
+                      <CardFooter className="bg-gray-50 border-t">
+                        <Button variant="ghost" className="w-full text-blue-600">View Guide</Button>
+                      </CardFooter>
+                    </Card>
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-12">
+                    <Info className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-700">No results found</h3>
+                    <p className="text-gray-500">Try adjusting your search term</p>
+                  </div>
+                )}
               </div>
             )}
 
-            <div className="mt-10 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            {/* Important notice banner */}
+            <div className="mt-10 p-5 bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm">
               <div className="flex items-start">
-                <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2 mt-0.5" />
+                <AlertTriangle className="h-5 w-5 text-yellow-600 mr-3 mt-0.5 flex-shrink-0" />
                 <div>
-                  <h3 className="font-medium text-yellow-800">Important Notice</h3>
+                  <h3 className="font-medium text-yellow-800 mb-1">Important Notice</h3>
                   <p className="text-sm text-yellow-700">
                     This first aid guide is for informational purposes only and is not a substitute for professional medical advice,
-                    diagnosis, or treatment. In case of emergency, call 112 or your local emergency number immediately.
+                    diagnosis, or treatment. In case of emergency, call emergency services immediately.
                   </p>
                 </div>
               </div>
             </div>
-
           </div>
         </main>
       </div>
