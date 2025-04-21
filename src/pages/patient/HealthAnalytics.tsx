@@ -1,464 +1,791 @@
-import { useState, useEffect } from 'react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { CalendarDays, Moon, Scale, Heart, Apple } from 'lucide-react';
+import { useState, useEffect } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
-// Sample data - in a real app this would come from your backend
-const initialSleepData = [
-  { date: '04/15', hours: 7.5 },
-  { date: '04/16', hours: 6.2 },
-  { date: '04/17', hours: 8.0 },
-  { date: '04/18', hours: 7.2 },
-  { date: '04/19', hours: 6.8 },
-  { date: '04/20', hours: 7.9 },
-  { date: '04/21', hours: 7.3 },
-];
-
-const initialWeightData = [
-  { date: '04/15', weight: 68.5 },
-  { date: '04/16', weight: 68.5 },
-  { date: '04/17', weight: 68.2 },
-  { date: '04/18', weight: 68.1 },
-  { date: '04/19', weight: 67.9 },
-  { date: '04/20', weight: 67.8 },
-  { date: '04/21', weight: 67.5 },
-];
-
-const initialBPData = [
-  { date: '04/15', systolic: 122, diastolic: 81 },
-  { date: '04/16', systolic: 120, diastolic: 80 },
-  { date: '04/17', systolic: 118, diastolic: 79 },
-  { date: '04/18', systolic: 121, diastolic: 82 },
-  { date: '04/19', systolic: 119, diastolic: 78 },
-  { date: '04/20', systolic: 117, diastolic: 76 },
-  { date: '04/21', systolic: 118, diastolic: 77 },
-];
-
-const initialDietData = [
-  { day: 'Monday', calories: 2100, protein: 120, carbs: 220, fat: 70 },
-  { day: 'Tuesday', calories: 1950, protein: 130, carbs: 200, fat: 65 },
-  { day: 'Wednesday', calories: 2050, protein: 125, carbs: 210, fat: 68 },
-  { day: 'Thursday', calories: 2000, protein: 128, carbs: 205, fat: 67 },
-  { day: 'Friday', calories: 2200, protein: 135, carbs: 225, fat: 72 },
-  { day: 'Saturday', calories: 2300, protein: 140, carbs: 240, fat: 75 },
-  { day: 'Sunday', calories: 1900, protein: 115, carbs: 195, fat: 62 },
-];
-
-export default function HealthDashboard() {
-  const [sleepData, setSleepData] = useState(initialSleepData);
-  const [weightData, setWeightData] = useState(initialWeightData);
-  const [bpData, setBpData] = useState(initialBPData);
-  const [dietData, setDietData] = useState(initialDietData);
-  const [activeTab, setActiveTab] = useState('sleep');
-  
-  // Form states
-  const [newSleep, setNewSleep] = useState({ date: '', hours: '' });
-  const [newWeight, setNewWeight] = useState({ date: '', weight: '' });
-  const [newBP, setNewBP] = useState({ date: '', systolic: '', diastolic: '' });
-  const [newDiet, setNewDiet] = useState({ day: '', calories: '', protein: '', carbs: '', fat: '' });
-  
-  // Handlers for adding new data
-  const addSleepData = (e) => {
-    e.preventDefault();
-    if (newSleep.date && newSleep.hours) {
-      setSleepData([...sleepData, newSleep]);
-      setNewSleep({ date: '', hours: '' });
-    }
-  };
-  
-  const addWeightData = (e) => {
-    e.preventDefault();
-    if (newWeight.date && newWeight.weight) {
-      setWeightData([...weightData, newWeight]);
-      setNewWeight({ date: '', weight: '' });
-    }
-  };
-  
-  const addBPData = (e) => {
-    e.preventDefault();
-    if (newBP.date && newBP.systolic && newBP.diastolic) {
-      setBpData([...bpData, newBP]);
-      setNewBP({ date: '', systolic: '', diastolic: '' });
-    }
-  };
-  
-  const addDietData = (e) => {
-    e.preventDefault();
-    if (newDiet.day && newDiet.calories && newDiet.protein && newDiet.carbs && newDiet.fat) {
-      setDietData([...dietData, newDiet]);
-      setNewDiet({ day: '', calories: '', protein: '', carbs: '', fat: '' });
-    }
-  };
-  
+// Simple implementation of Card component
+const Card = ({ children, className }) => {
   return (
-    <div className="flex flex-col min-h-screen bg-blue-50">
-      <header className="bg-blue-600 text-white p-4 shadow-md">
-        <h1 className="text-2xl font-bold">Health Analytics Dashboard</h1>
-      </header>
-      
-      <div className="flex flex-col md:flex-row flex-1">
-        {/* Sidebar Navigation */}
-        <nav className="bg-blue-100 p-4 md:w-64">
-          <ul>
-            <li 
-              className={'flex items-center p-3 mb-2 rounded cursor-pointer ${activeTab === 'sleep' ? 'bg-blue-500 text-white' : 'bg-blue-200 hover:bg-blue-300'}'}
-              onClick={() => setActiveTab('sleep')}
-            >
-              <Moon size={20} className="mr-2" />
-              <span>Sleep Tracker</span>
-            </li>
-            <li 
-              className={'flex items-center p-3 mb-2 rounded cursor-pointer ${activeTab === 'weight' ? 'bg-blue-500 text-white' : 'bg-blue-200 hover:bg-blue-300'}'}
-              onClick={() => setActiveTab('weight')}
-            >
-              <Scale size={20} className="mr-2" />
-              <span>Weight Tracker</span>
-            </li>
-            <li 
-              className={'flex items-center p-3 mb-2 rounded cursor-pointer ${activeTab === 'bp' ? 'bg-blue-500 text-white' : 'bg-blue-200 hover:bg-blue-300'}'}
-              onClick={() => setActiveTab('bp')}
-            >
-              <Heart size={20} className="mr-2" />
-              <span>Blood Pressure</span>
-            </li>
-            <li 
-              className={'flex items-center p-3 mb-2 rounded cursor-pointer ${activeTab === 'diet' ? 'bg-blue-500 text-white' : 'bg-blue-200 hover:bg-blue-300'}'}
-              onClick={() => setActiveTab('diet')}
-            >
-              <Apple size={20} className="mr-2" />
-              <span>Diet Planner</span>
-            </li>
-          </ul>
-        </nav>
-        
-        {/* Main Content Area */}
-        <main className="flex-1 p-6">
-          {/* Sleep Tracker */}
-          {activeTab === 'sleep' && (
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <Moon size={24} className="text-blue-500 mr-2" />
-                <h2 className="text-xl font-bold text-blue-800">Sleep Tracker</h2>
-              </div>
-              
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-blue-600 mb-2">Sleep Hours</h3>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={sleepData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-                      <XAxis dataKey="date" />
-                      <YAxis domain={[0, 10]} />
-                      <Tooltip />
-                      <Legend />
-                      <Line type="monotone" dataKey="hours" stroke="#3b82f6" strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-              
-              <form onSubmit={addSleepData} className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-blue-700 mb-3">Add Sleep Data</h3>
-                <div className="flex flex-wrap gap-4">
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-blue-700 mb-1">Date (MM/DD)</label>
-                    <input
-                      type="text"
-                      className="w-full p-2 border border-blue-300 rounded"
-                      placeholder="04/22"
-                      value={newSleep.date}
-                      onChange={(e) => setNewSleep({...newSleep, date: e.target.value})}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-blue-700 mb-1">Hours Slept</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      className="w-full p-2 border border-blue-300 rounded"
-                      placeholder="7.5"
-                      value={newSleep.hours}
-                      onChange={(e) => setNewSleep({...newSleep, hours: parseFloat(e.target.value)})}
-                    />
-                  </div>
-                  <div className="flex items-end">
-                    <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                      Add Entry
-                    </button>
-                  </div>
-                </div>
-              </form>
+    <div className={bg-white rounded-lg shadow-md ${className}}>
+      {children}
+    </div>
+  );
+};
+
+// Simple Navbar implementation
+const Navbar = () => {
+  return (
+    <header className="bg-white border-b shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16 items-center">
+          <div className="flex-shrink-0 flex items-center">
+            <h1 className="text-xl font-bold text-blue-600">HealthTrack</h1>
+          </div>
+          <nav className="flex items-center space-x-4">
+            <button className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600">
+              Dashboard
+            </button>
+            <button className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600">
+              Profile
+            </button>
+            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+              U
             </div>
-          )}
-          
-          {/* Weight Tracker */}
-          {activeTab === 'weight' && (
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <Scale size={24} className="text-blue-500 mr-2" />
-                <h2 className="text-xl font-bold text-blue-800">Weight Tracker</h2>
-              </div>
-              
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-blue-600 mb-2">Weight History (kg)</h3>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={weightData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-                      <XAxis dataKey="date" />
-                      <YAxis domain={[Math.floor(Math.min(...weightData.map(d => d.weight)) - 2), Math.ceil(Math.max(...weightData.map(d => d.weight)) + 2)]} />
-                      <Tooltip />
-                      <Legend />
-                      <Line type="monotone" dataKey="weight" stroke="#3b82f6" strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-              
-              <form onSubmit={addWeightData} className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-blue-700 mb-3">Add Weight Data</h3>
-                <div className="flex flex-wrap gap-4">
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-blue-700 mb-1">Date (MM/DD)</label>
-                    <input
-                      type="text"
-                      className="w-full p-2 border border-blue-300 rounded"
-                      placeholder="04/22"
-                      value={newWeight.date}
-                      onChange={(e) => setNewWeight({...newWeight, date: e.target.value})}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-blue-700 mb-1">Weight (kg)</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      className="w-full p-2 border border-blue-300 rounded"
-                      placeholder="68.0"
-                      value={newWeight.weight}
-                      onChange={(e) => setNewWeight({...newWeight, weight: parseFloat(e.target.value)})}
-                    />
-                  </div>
-                  <div className="flex items-end">
-                    <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                      Add Entry
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          )}
-          
-          {/* Blood Pressure Tracker */}
-          {activeTab === 'bp' && (
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <Heart size={24} className="text-blue-500 mr-2" />
-                <h2 className="text-xl font-bold text-blue-800">Blood Pressure Tracker</h2>
-              </div>
-              
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-blue-600 mb-2">Blood Pressure History</h3>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={bpData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-                      <XAxis dataKey="date" />
-                      <YAxis domain={[60, 140]} />
-                      <Tooltip />
-                      <Legend />
-                      <Line type="monotone" dataKey="systolic" stroke="#3b82f6" strokeWidth={2} name="Systolic" />
-                      <Line type="monotone" dataKey="diastolic" stroke="#60a5fa" strokeWidth={2} name="Diastolic" />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-              
-              <form onSubmit={addBPData} className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-blue-700 mb-3">Add Blood Pressure Data</h3>
-                <div className="flex flex-wrap gap-4">
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-blue-700 mb-1">Date (MM/DD)</label>
-                    <input
-                      type="text"
-                      className="w-full p-2 border border-blue-300 rounded"
-                      placeholder="04/22"
-                      value={newBP.date}
-                      onChange={(e) => setNewBP({...newBP, date: e.target.value})}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-blue-700 mb-1">Systolic (mmHg)</label>
-                    <input
-                      type="number"
-                      className="w-full p-2 border border-blue-300 rounded"
-                      placeholder="120"
-                      value={newBP.systolic}
-                      onChange={(e) => setNewBP({...newBP, systolic: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-blue-700 mb-1">Diastolic (mmHg)</label>
-                    <input
-                      type="number"
-                      className="w-full p-2 border border-blue-300 rounded"
-                      placeholder="80"
-                      value={newBP.diastolic}
-                      onChange={(e) => setNewBP({...newBP, diastolic: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div className="flex items-end">
-                    <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                      Add Entry
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          )}
-          
-          {/* Diet Planner */}
-          {activeTab === 'diet' && (
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <Apple size={24} className="text-blue-500 mr-2" />
-                <h2 className="text-xl font-bold text-blue-800">Diet Planner</h2>
-              </div>
-              
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-blue-600 mb-2">Weekly Nutrition Plan</h3>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={dietData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-                      <XAxis dataKey="day" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="protein" name="Protein (g)" fill="#3b82f6" />
-                      <Bar dataKey="carbs" name="Carbs (g)" fill="#60a5fa" />
-                      <Bar dataKey="fat" name="Fat (g)" fill="#93c5fd" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                
-                <div className="mt-8">
-                  <h3 className="text-lg font-semibold text-blue-600 mb-2">Calorie Intake</h3>
-                  <div className="h-48">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={dietData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-                        <XAxis dataKey="day" />
-                        <YAxis domain={[1800, 2400]} />
-                        <Tooltip />
-                        <Legend />
-                        <Line type="monotone" dataKey="calories" stroke="#3b82f6" strokeWidth={2} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              </div>
-              
-              <form onSubmit={addDietData} className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-blue-700 mb-3">Add Diet Data</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-blue-700 mb-1">Day</label>
-                    <select
-                      className="w-full p-2 border border-blue-300 rounded"
-                      value={newDiet.day}
-                      onChange={(e) => setNewDiet({...newDiet, day: e.target.value})}
-                    >
-                      <option value="">Select day</option>
-                      <option value="Monday">Monday</option>
-                      <option value="Tuesday">Tuesday</option>
-                      <option value="Wednesday">Wednesday</option>
-                      <option value="Thursday">Thursday</option>
-                      <option value="Friday">Friday</option>
-                      <option value="Saturday">Saturday</option>
-                      <option value="Sunday">Sunday</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-blue-700 mb-1">Calories</label>
-                    <input
-                      type="number"
-                      className="w-full p-2 border border-blue-300 rounded"
-                      placeholder="2000"
-                      value={newDiet.calories}
-                      onChange={(e) => setNewDiet({...newDiet, calories: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-blue-700 mb-1">Protein (g)</label>
-                    <input
-                      type="number"
-                      className="w-full p-2 border border-blue-300 rounded"
-                      placeholder="120"
-                      value={newDiet.protein}
-                      onChange={(e) => setNewDiet({...newDiet, protein: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-blue-700 mb-1">Carbs (g)</label>
-                    <input
-                      type="number"
-                      className="w-full p-2 border border-blue-300 rounded"
-                      placeholder="200"
-                      value={newDiet.carbs}
-                      onChange={(e) => setNewDiet({...newDiet, carbs: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-blue-700 mb-1">Fat (g)</label>
-                    <input
-                      type="number"
-                      className="w-full p-2 border border-blue-300 rounded"
-                      placeholder="70"
-                      value={newDiet.fat}
-                      onChange={(e) => setNewDiet({...newDiet, fat: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div className="flex items-end">
-                    <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                      Add Diet Entry
-                    </button>
-                  </div>
-                </div>
-              </form>
-              
-              <div className="mt-8 bg-blue-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-blue-700 mb-3">Meal Suggestions</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white p-3 rounded shadow">
-                    <h4 className="font-semibold text-blue-600">Breakfast</h4>
-                    <ul className="mt-2 text-sm">
-                      <li>• Greek yogurt with berries and nuts</li>
-                      <li>• Oatmeal with banana and cinnamon</li>
-                      <li>• Eggs with whole grain toast</li>
-                    </ul>
-                  </div>
-                  <div className="bg-white p-3 rounded shadow">
-                    <h4 className="font-semibold text-blue-600">Lunch</h4>
-                    <ul className="mt-2 text-sm">
-                      <li>• Grilled chicken salad</li>
-                      <li>• Quinoa bowl with vegetables</li>
-                      <li>• Turkey and avocado wrap</li>
-                    </ul>
-                  </div>
-                  <div className="bg-white p-3 rounded shadow">
-                    <h4 className="font-semibold text-blue-600">Dinner</h4>
-                    <ul className="mt-2 text-sm">
-                      <li>• Baked salmon with roasted vegetables</li>
-                      <li>• Stir-fry with tofu and brown rice</li>
-                      <li>• Chicken with sweet potato</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </main>
+          </nav>
+        </div>
       </div>
+    </header>
+  );
+};
+
+const initialData = [
+  { date: "Jan", weight: 70, bloodPressure: 120, sleep: 7, calories: 2100 },
+  { date: "Feb", weight: 71, bloodPressure: 118, sleep: 7.5, calories: 2200 },
+  { date: "Mar", weight: 70.5, bloodPressure: 122, sleep: 6.5, calories: 2050 },
+  { date: "Apr", weight: 69.8, bloodPressure: 119, sleep: 8, calories: 1950 },
+];
+
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+
+const initialNutritionData = [
+  { name: "Protein", value: 30 },
+  { name: "Carbs", value: 45 },
+  { name: "Fats", value: 25 },
+];
+
+const dietPlans = {
+  weightLoss: {
+    vegetarian: [
+      { meal: "Breakfast", foods: "Greek yogurt with berries and nuts", calories: 300 },
+      { meal: "Snack", foods: "Apple with almond butter", calories: 200 },
+      { meal: "Lunch", foods: "Quinoa salad with mixed vegetables and chickpeas", calories: 450 },
+      { meal: "Snack", foods: "Hummus with carrot sticks", calories: 150 },
+      { meal: "Dinner", foods: "Grilled tofu with roasted vegetables and brown rice", calories: 400 },
+    ],
+    nonVegetarian: [
+      { meal: "Breakfast", foods: "Egg white omelet with spinach and whole grain toast", calories: 300 },
+      { meal: "Snack", foods: "Protein shake with banana", calories: 200 },
+      { meal: "Lunch", foods: "Grilled chicken salad with olive oil dressing", calories: 450 },
+      { meal: "Snack", foods: "Greek yogurt with berries", calories: 150 },
+      { meal: "Dinner", foods: "Baked salmon with steamed broccoli and quinoa", calories: 400 },
+    ]
+  },
+  weightGain: {
+    vegetarian: [
+      { meal: "Breakfast", foods: "Smoothie with bananas, oats, peanut butter, and milk", calories: 500 },
+      { meal: "Snack", foods: "Trail mix with dried fruits and nuts", calories: 350 },
+      { meal: "Lunch", foods: "Lentil curry with rice and avocado", calories: 650 },
+      { meal: "Snack", foods: "Protein bar and fruit", calories: 300 },
+      { meal: "Dinner", foods: "Bean and cheese burrito with guacamole and sweet potato", calories: 700 },
+    ],
+    nonVegetarian: [
+      { meal: "Breakfast", foods: "Eggs, whole grain toast with avocado, and fruit", calories: 500 },
+      { meal: "Snack", foods: "Protein shake with peanut butter and banana", calories: 350 },
+      { meal: "Lunch", foods: "Grilled chicken, brown rice, and avocado", calories: 650 },
+      { meal: "Snack", foods: "Tuna sandwich on whole grain bread", calories: 300 },
+      { meal: "Dinner", foods: "Steak with baked potato and vegetables", calories: 700 },
+    ]
+  }
+};
+
+export default function HealthAnalytics() {
+  const [loading, setLoading] = useState(true);
+  const [healthData, setHealthData] = useState(initialData);
+  const [nutritionData, setNutritionData] = useState(initialNutritionData);
+  const [newEntry, setNewEntry] = useState({
+    date: "",
+    weight: "",
+    bloodPressure: "",
+    sleep: "",
+    calories: "",
+  });
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedDietPlan, setSelectedDietPlan] = useState("weightLoss");
+  const [dietPreference, setDietPreference] = useState("vegetarian");
+  const [isNutritionFormOpen, setIsNutritionFormOpen] = useState(false);
+  const [newNutritionEntry, setNewNutritionEntry] = useState({
+    protein: 30,
+    carbs: 45,
+    fats: 25,
+  });
+
+  // Simulate authentication loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewEntry(prev => ({
+      ...prev,
+      [name]: name === "date" ? value : parseFloat(value) || ""
+    }));
+  };
+
+  const handleNutritionChange = (e) => {
+    const { name, value } = e.target;
+    setNewNutritionEntry(prev => ({
+      ...prev,
+      [name]: parseFloat(value) || 0
+    }));
+  };
+
+  const updateNutritionData = () => {
+    const { protein, carbs, fats } = newNutritionEntry;
+    if (protein + carbs + fats !== 100) {
+      alert("Total nutrition percentages must equal 100%");
+      return;
+    }
+    
+    setNutritionData([
+      { name: "Protein", value: protein },
+      { name: "Carbs", value: carbs },
+      { name: "Fats", value: fats },
+    ]);
+    
+    setIsNutritionFormOpen(false);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!newEntry.date || !newEntry.weight || !newEntry.bloodPressure || !newEntry.sleep || !newEntry.calories) {
+      alert("Please fill all fields");
+      return;
+    }
+    
+    setHealthData(prev => [...prev, newEntry]);
+    setNewEntry({ date: "", weight: "", bloodPressure: "", sleep: "", calories: "" });
+    setIsFormOpen(false);
+  };
+
+  const calculateBMI = () => {
+    const lastEntry = healthData[healthData.length - 1];
+    // Assuming height is 1.75m for calculation
+    const height = 1.75;
+    const weight = lastEntry?.weight || 70;
+    const bmi = weight / (height * height);
+    return bmi.toFixed(1);
+  };
+
+  const getBMIStatus = () => {
+    const bmi = calculateBMI();
+    if (bmi < 18.5) return { status: "Underweight", color: "text-yellow-600" };
+    if (bmi < 25) return { status: "Normal", color: "text-green-600" };
+    if (bmi < 30) return { status: "Overweight", color: "text-orange-600" };
+    return { status: "Obese", color: "text-red-600" };
+  };
+
+  const getCalorieRecommendation = () => {
+    const lastEntry = healthData[healthData.length - 1];
+    const bmiStatus = getBMIStatus();
+    
+    if (bmiStatus.status === "Underweight") {
+      return {
+        recommendation: "Increase your daily calories by 300-500 calories.",
+        target: (lastEntry?.calories || 2000) + 400,
+        color: "text-blue-600"
+      };
+    } else if (bmiStatus.status === "Overweight" || bmiStatus.status === "Obese") {
+      return {
+        recommendation: "Consider reducing your daily calories by 300-500 calories.",
+        target: Math.max((lastEntry?.calories || 2000) - 400, 1500),
+        color: "text-blue-600"
+      };
+    } else {
+      return {
+        recommendation: "Your calorie intake is appropriate for your BMI.",
+        target: lastEntry?.calories || 2000,
+        color: "text-green-600"
+      };
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-blue-50">
+        <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-blue-50">
+      <Navbar />
+      <main className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-blue-800">Health Analytics</h1>
+          <div className="flex space-x-3">
+            <button 
+              onClick={() => setIsFormOpen(!isFormOpen)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 shadow-md"
+            >
+              {isFormOpen ? "Close Form" : "Add Health Data"}
+            </button>
+          </div>
+        </div>
+
+        {isFormOpen && (
+          <Card className="p-6 mb-6">
+            <h3 className="text-xl font-semibold mb-4 text-blue-800">Add Health Data</h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-blue-900">Month</label>
+                  <input
+                    type="text"
+                    name="date"
+                    placeholder="e.g., May"
+                    value={newEntry.date}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-blue-900">Weight (kg)</label>
+                  <input
+                    type="number"
+                    name="weight"
+                    placeholder="e.g., 70.5"
+                    value={newEntry.weight}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    step="0.1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-blue-900">Blood Pressure</label>
+                  <input
+                    type="number"
+                    name="bloodPressure"
+                    placeholder="e.g., 120"
+                    value={newEntry.bloodPressure}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-blue-900">Sleep (hours)</label>
+                  <input
+                    type="number"
+                    name="sleep"
+                    placeholder="e.g., 7.5"
+                    value={newEntry.sleep}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    step="0.1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-blue-900">Calories</label>
+                  <input
+                    type="number"
+                    name="calories"
+                    placeholder="e.g., 2000"
+                    value={newEntry.calories}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <button 
+                  type="submit" 
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 shadow-md"
+                >
+                  Add Entry
+                </button>
+              </div>
+            </form>
+          </Card>
+        )}
+
+        {/* Overview Card */}
+        <Card className="p-6 mb-6 border-t-4 border-blue-600">
+          <div className="grid md:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-blue-100 rounded-lg">
+              <h3 className="text-lg font-medium text-blue-800">Current Weight</h3>
+              <p className="text-3xl font-bold text-blue-600">{healthData[healthData.length - 1]?.weight || 0} kg</p>
+            </div>
+            <div className="text-center p-4 bg-blue-100 rounded-lg">
+              <h3 className="text-lg font-medium text-blue-800">BMI</h3>
+              <p className="text-3xl font-bold text-blue-600">{calculateBMI()}</p>
+              <p className={text-sm font-medium ${getBMIStatus().color}}>{getBMIStatus().status}</p>
+            </div>
+            <div className="text-center p-4 bg-blue-100 rounded-lg">
+              <h3 className="text-lg font-medium text-blue-800">Daily Calories</h3>
+              <p className="text-3xl font-bold text-blue-600">{healthData[healthData.length - 1]?.calories || 0}</p>
+            </div>
+            <div className="text-center p-4 bg-blue-100 rounded-lg">
+              <h3 className="text-lg font-medium text-blue-800">Sleep</h3>
+              <p className="text-3xl font-bold text-blue-600">{healthData[healthData.length - 1]?.sleep || 0} hrs</p>
+            </div>
+          </div>
+        </Card>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card className="p-6">
+            <h3 className="text-xl font-semibold mb-4 text-blue-800">Weight Tracking</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={healthData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
+                  <XAxis dataKey="date" stroke="#4b6cb7" />
+                  <YAxis domain={['auto', 'auto']} stroke="#4b6cb7" />
+                  <Tooltip contentStyle={{ backgroundColor: "#f0f9ff", borderColor: "#93c5fd" }} />
+                  <Line
+                    type="monotone"
+                    dataKey="weight"
+                    stroke="#2563eb"
+                    strokeWidth={2}
+                    dot={{ fill: "#2563eb" }}
+                    activeDot={{ r: 8 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4">
+              <h4 className="font-medium text-sm mb-2 text-blue-800">Recent Entries:</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-blue-200">
+                      <th className="text-left py-2 text-blue-700">Month</th>
+                      <th className="text-right text-blue-700">Weight (kg)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {healthData.slice(-5).map((entry, index) => (
+                      <tr key={index} className="border-b border-blue-100">
+                        <td className="py-2">{entry.date}</td>
+                        <td className="text-right">{entry.weight}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="text-xl font-semibold mb-4 text-blue-800">Blood Pressure</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={healthData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
+                  <XAxis dataKey="date" stroke="#4b6cb7" />
+                  <YAxis domain={['auto', 'auto']} stroke="#4b6cb7" />
+                  <Tooltip contentStyle={{ backgroundColor: "#f0f9ff", borderColor: "#93c5fd" }} />
+                  <Line
+                    type="monotone"
+                    dataKey="bloodPressure"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    dot={{ fill: "#10b981" }}
+                    activeDot={{ r: 8 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4">
+              <h4 className="font-medium text-sm mb-2 text-blue-800">Recent Entries:</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-blue-200">
+                      <th className="text-left py-2 text-blue-700">Month</th>
+                      <th className="text-right text-blue-700">BP</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {healthData.slice(-5).map((entry, index) => (
+                      <tr key={index} className="border-b border-blue-100">
+                        <td className="py-2">{entry.date}</td>
+                        <td className="text-right">{entry.bloodPressure}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="text-xl font-semibold mb-4 text-blue-800">Sleep Pattern</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={healthData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
+                  <XAxis dataKey="date" stroke="#4b6cb7" />
+                  <YAxis domain={['auto', 'auto']} stroke="#4b6cb7" />
+                  <Tooltip contentStyle={{ backgroundColor: "#f0f9ff", borderColor: "#93c5fd" }} />
+                  <Line
+                    type="monotone"
+                    dataKey="sleep"
+                    stroke="#eab308"
+                    strokeWidth={2}
+                    dot={{ fill: "#eab308" }}
+                    activeDot={{ r: 8 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4">
+              <h4 className="font-medium text-sm mb-2 text-blue-800">Recent Entries:</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-blue-200">
+                      <th className="text-left py-2 text-blue-700">Month</th>
+                      <th className="text-right text-blue-700">Sleep (hrs)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {healthData.slice(-5).map((entry, index) => (
+                      <tr key={index} className="border-b border-blue-100">
+                        <td className="py-2">{entry.date}</td>
+                        <td className="text-right">{entry.sleep}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="text-xl font-semibold mb-4 text-blue-800">Calorie Tracking</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={healthData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
+                  <XAxis dataKey="date" stroke="#4b6cb7" />
+                  <YAxis domain={['auto', 'auto']} stroke="#4b6cb7" />
+                  <Tooltip contentStyle={{ backgroundColor: "#f0f9ff", borderColor: "#93c5fd" }} />
+                  <Line
+                    type="monotone"
+                    dataKey="calories"
+                    stroke="#f97316"
+                    strokeWidth={2}
+                    dot={{ fill: "#f97316" }}
+                    activeDot={{ r: 8 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4">
+              <h4 className="font-medium text-sm mb-2 text-blue-800">Recent Entries:</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-blue-200">
+                      <th className="text-left py-2 text-blue-700">Month</th>
+                      <th className="text-right text-blue-700">Calories</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {healthData.slice(-5).map((entry, index) => (
+                      <tr key={index} className="border-b border-blue-100">
+                        <td className="py-2">{entry.date}</td>
+                        <td className="text-right">{entry.calories}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-blue-800">Nutrition Breakdown</h3>
+              <button 
+                onClick={() => setIsNutritionFormOpen(!isNutritionFormOpen)}
+                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                {isNutritionFormOpen ? "Cancel" : "Update"}
+              </button>
+            </div>
+
+            {isNutritionFormOpen ? (
+              <div className="mb-4">
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-blue-900">Protein (%)</label>
+                    <input
+                      type="number"
+                      name="protein"
+                      value={newNutritionEntry.protein}
+                      onChange={handleNutritionChange}
+                      className="w-full p-2 border rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-blue-900">Carbs (%)</label>
+                    <input
+                      type="number"
+                      name="carbs"
+                      value={newNutritionEntry.carbs}
+                      onChange={handleNutritionChange}
+                      className="w-full p-2 border rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-blue-900">Fats (%)</label>
+                    <input
+                      type="number"
+                      name="fats"
+                      value={newNutritionEntry.fats}
+                      onChange={handleNutritionChange}
+                      className="w-full p-2 border rounded-md"
+                    />
+                  </div>
+                </div>
+                <div className="text-right">
+                  <button
+                    onClick={updateNutritionData}
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="h-64 flex justify-center">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={nutritionData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, percent }) => ${name} ${(percent * 100).toFixed(0)}%}
+                      >
+                        {nutritionData.map((entry, index) => (
+                          <Cell key={cell-${index}} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="mt-4">
+                  <p className="text-sm text-blue-900 mb-1">
+                    Based on your current BMI and goals, we recommend:
+                  </p>
+                  <p className={text-sm font-medium ${getCalorieRecommendation().color}}>
+                    {getCalorieRecommendation().recommendation}
+                  </p>
+                  <p className="text-sm text-blue-900 mt-2">
+                    Target daily calories: <span className="font-bold">{getCalorieRecommendation().target}</span>
+                  </p>
+                </div>
+              </>
+            )}
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="text-xl font-semibold mb-4 text-blue-800">Health Overview</h3>
+            <div className="space-y-4">
+              <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+                <h4 className="font-medium mb-2 text-blue-800">Weight Trend</h4>
+                {healthData.length >= 2 && (
+                  <p>
+                    {healthData[healthData.length - 1].weight > healthData[healthData.length - 2].weight 
+                      ? "⬆ Your weight has increased since last entry. " 
+                      : healthData[healthData.length - 1].weight < healthData[healthData.length - 2].weight
+                        ? "⬇ Your weight has decreased since last entry. "
+                        : "➡ Your weight remains stable. "}
+                    Current: {healthData[healthData.length - 1].weight} kg
+                  </p>
+                )}
+              </div>
+              <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-400">
+                <h4 className="font-medium mb-2 text-green-800">Blood Pressure Status</h4>
+                {healthData.length >= 1 && (
+                  <p>
+                    {healthData[healthData.length - 1].bloodPressure > 130
+                      ? "⚠ Blood pressure is above recommended levels."
+                      : healthData[healthData.length - 1].bloodPressure < 90
+                        ? "⚠ Blood pressure is below recommended levels."
+                        : "✅ Blood pressure is within normal range."}
+                  </p>
+                )}
+              </div>
+              <div className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                <h4 className="font-medium mb-2 text-yellow-800">Sleep Health</h4>
+                {healthData.length >= 1 && (
+                  <p>
+                    {healthData[healthData.length - 1].sleep < 6
+                      ? "⚠ You might need more sleep for optimal health."
+                      : healthData[healthData.length - 1].sleep > 9
+                        ? "ℹ You're sleeping more than average."
+                        : "✅ Your sleep duration is within recommended range."}
+                  </p>
+                )}
+              </div>
+              <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-400">
+                <h4 className="font-medium mb-2 text-red-800">Calorie Intake</h4>
+                {healthData.length >= 1 && (
+                  <p>
+                    {healthData[healthData.length - 1].calories > 2500
+                      ? "⚠ Your calorie intake is higher than recommended."
+                      : healthData[healthData.length - 1].calories < 1500
+                        ? "⚠ Your calorie intake is lower than recommended."
+                        : "✅ Your calorie intake is within a healthy range."}
+                  </p>
+                )}
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Diet Management Section */}
+        <h2 className="text-2xl font-bold mt-8 mb-4 text-blue-800">Diet Management</h2>
+        
+        <div className="grid md:grid-cols-3 gap-6">
+          <Card className="p-6 col-span-3 md:col-span-1">
+            <h3 className="text-xl font-semibold mb-4 text-blue-800">Diet Recommendations</h3>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2 text-blue-900">Select Goal:</label>
+              <select
+                value={selectedDietPlan}
+                onChange={(e) => setSelectedDietPlan(e.target.value)}
+                className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="weightLoss">Weight Loss</option>
+                <option value="weightGain">Weight Gain</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2 text-blue-900">Preference:</label>
+              <select
+                value={dietPreference}
+                onChange={(e) => setDietPreference(e.target.value)}
+                className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="vegetarian">Vegetarian</option>
+                <option value="nonVegetarian">Non-Vegetarian</option>
+              </select>
+            </div>
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <h4 className="font-medium text-blue-800">Recommended Daily Calories:</h4>
+              <p className="text-2xl font-bold text-blue-600">
+                {selectedDietPlan === "weightLoss" ? "1,500 - 1,800" : "2,500 - 3,000"}
+              </p>
+              <p className="text-sm text-blue-700 mt-2">
+                {selectedDietPlan === "weightLoss" 
+                  ? "Calorie deficit to promote gradual, healthy weight loss" 
+                  : "Calorie surplus to support muscle growth and weight gain"}
+              </p>
+            </div>
+          </Card>
+
+          <Card className="p-6 col-span-3 md:col-span-2">
+            <h3 className="text-xl font-semibold mb-4 text-blue-800">
+              {selectedDietPlan === "weightLoss" ? "Weight Loss" : "Weight Gain"} Diet Plan - {dietPreference === "vegetarian" ? "Vegetarian" : "Non-Vegetarian"}
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-blue-200 bg-blue-50">
+                    <th className="text-left py-3 px-4 text-blue-700">Meal</th>
+                    <th className="text-left py-3 px-4 text-blue-700">Foods</th>
+                    <th className="text-right py-3 px-4 text-blue-700">Calories</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dietPlans[selectedDietPlan][dietPreference].map((meal, index) => (
+                    <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-blue-50"}>
+                      <td className="py-3 px-4 font-medium">{meal.meal}</td>
+                      <td className="py-3 px-4">{meal.foods}</td>
+                      <td className="py-3 px-4 text-right">{meal.calories}</td>
+                    </tr>
+                  ))}
+                  <tr className="border-t border-blue-300 bg-blue-100">
+                    <td className="py-3 px-4 font-bold text-blue-800">Total</td>
+                    <td></td>
+                    <td className="py-3 px-4 text-right font-bold text-blue-800">
+                      {dietPlans[selectedDietPlan][dietPreference].reduce((total, meal) => total + meal.calories, 0)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+              <h4 className="font-medium text-blue-800 mb-2">Health Tips:</h4>
+              <ul className="text-sm text-blue-700 space-y-1">
+                {selectedDietPlan === "weightLoss" ? (
+                  <>
+                    <li>• Drink plenty of water throughout the day to stay hydrated and manage hunger.</li>
+                    <li>• Focus on high-protein foods to maintain muscle mass during weight loss.</li>
+                    <li>• Include fiber-rich foods to help you feel full longer.</li>
+                    <li>• Limit processed foods and added sugars.</li>
+                    <li>• Consider intermittent fasting after consulting with a healthcare provider.</li>
+                  </>
+                ) : (
+                  <>
+                    <li>• Focus on nutrient-dense calories, not just high-calorie foods.</li>
+                    <li>• Eat more frequently - 5-6 meals per day instead of 3 larger ones.</li>
+                    <li>• Prioritize protein intake to support muscle growth.</li>
+                    <li>• Include healthy fats like nuts, avocados, and olive oil.</li>
+                    <li>• Consider a pre-bedtime protein-rich snack to prevent muscle breakdown during sleep.</li>
+                  </>
+                )}
+              </ul>
+            </div>
+          </Card>
+        </div>
+
+        {/* Additional Health Tips Section */}
+        <Card className="p-6 mt-6">
+          <h3 className="text-xl font-semibold mb-4 text-blue-800">Health Insights</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <h4 className="font-medium text-blue-800 mb-3">Weight Management</h4>
+              <p className="text-sm text-blue-700">
+                {getBMIStatus().status === "Normal" 
+                  ? "Your BMI is within a healthy range. Focus on maintaining your current weight through balanced nutrition and regular physical activity."
+                  : getBMIStatus().status === "Underweight"
+                    ? "Your BMI indicates you're underweight. Consider increasing your caloric intake with nutrient-dense foods and consult with a healthcare provider."
+                    : "Your BMI indicates you could benefit from weight loss. Focus on creating a moderate calorie deficit through diet and exercise."}
+              </p>
+            </div>
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <h4 className="font-medium text-blue-800 mb-3">Sleep Optimization</h4>
+              <p className="text-sm text-blue-700">
+                {healthData[healthData.length - 1]?.sleep < 7
+                  ? "Your sleep duration is below recommendations. Try to establish a consistent sleep schedule and aim for 7-9 hours per night."
+                  : "You're getting adequate sleep. Maintain your good sleep habits and consider sleep quality improvements like reducing screen time before bed."}
+              </p>
+            </div>
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <h4 className="font-medium text-blue-800 mb-3">Nutrition Balance</h4>
+              <p className="text-sm text-blue-700">
+                Your current macronutrient breakdown is {nutritionData[0].value}% protein, {nutritionData[1].value}% carbs, and {nutritionData[2].value}% fats. 
+                {getBMIStatus().status === "Overweight" || getBMIStatus().status === "Obese"
+                  ? " Consider increasing protein intake while reducing carbohydrates to support weight management."
+                  : " This is a balanced distribution for your current health status."}
+              </p>
+            </div>
+          </div>
+        </Card>
+      </main>
     </div>
   );
 }
