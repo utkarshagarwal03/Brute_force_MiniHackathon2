@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Search, LifeBuoy, Heart, BandageIcon, ThermometerIcon, Pill, AlertTriangle } from "lucide-react";
+import { Search, LifeBuoy, Heart, BandageIcon, ThermometerIcon, Pill, AlertTriangle, Droplet } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,40 @@ import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 // First aid categories and procedures
 const firstAidData = [
+  {
+    id: "nosebleed",
+    title: "Nosebleeds",
+    icon: Droplet,
+    color: "text-rose-500",
+    bgColor: "bg-rose-50",
+    content: [
+      {
+        title: "Immediate steps",
+        steps: [
+          "Stay calm and sit upright, leaning slightly forward to prevent swallowing blood.",
+          "Pinch the soft part of your nose (just below the bony bridge) firmly with your thumb and index finger.",
+          "Breathe through your mouth and continue pinching for 10-15 minutes without letting go.",
+          "Apply a cold compress or ice pack to the nose or back of the neck to constrict blood vessels."
+        ]
+      },
+      {
+        title: "After bleeding stops",
+        steps: [
+          "Avoid blowing your nose or bending over for several hours.",
+          "Keep your head elevated and rest.",
+          "Use a saline nasal spray to keep the nasal passages moist if needed."
+        ]
+      },
+      {
+        title: "Seek medical attention if",
+        steps: [
+          "The bleeding lasts more than 20 minutes.",
+          "You feel lightheaded, faint, or weak.",
+          "The nosebleed occurred after an injury (e.g., car accident, fall)."
+        ]
+      }
+    ]
+  },
   {
     id: "cuts",
     title: "Cuts & Wounds",
@@ -198,8 +231,8 @@ export default function FirstAid() {
                 {firstAidData.filter(category => category.id === selectedCategory).map(category => (
                   <div key={category.id} className="space-y-6">
                     <div className="flex items-center">
-                      <div className={`p-3 rounded-full ${category.bgColor} mr-3`}>
-                        <category.icon className={`h-6 w-6 ${category.color}`} />
+                      <div className={p-3 rounded-full ${category.bgColor} mr-3}>
+                        <category.icon className={h-6 w-6 ${category.color}} />
                       </div>
                       <h2 className="text-2xl font-bold">{category.title}</h2>
                     </div>
@@ -230,8 +263,8 @@ export default function FirstAid() {
                     onClick={() => setSelectedCategory(category.id)}
                   >
                     <CardHeader className="pb-2">
-                      <div className={`p-3 rounded-full ${category.bgColor} w-fit`}>
-                        <category.icon className={`h-5 w-5 ${category.color}`} />
+                      <div className={p-3 rounded-full ${category.bgColor} w-fit}>
+                        <category.icon className={h-5 w-5 ${category.color}} />
                       </div>
                       <CardTitle className="mt-2">{category.title}</CardTitle>
                       <CardDescription>
