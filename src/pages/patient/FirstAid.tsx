@@ -229,9 +229,13 @@ export default function FirstAid() {
                     onClick={() => setSelectedCategory(category.id)}
                   >
                     <CardHeader className="pb-2">
-                     <div className={`p-3 rounded-full ${category.bgColor} mr-3`}>
-  <category.icon className={`h-6 w-6 ${category.color}`} />
-</div>
+  <div className={`p-3 rounded-full ${category.bgColor} mr-3`}>
+    {(() => {
+      const Icon = category.icon;
+      return <Icon className={`h-6 w-6 ${category.color}`} />;
+    })()}
+  </div>
+
                       <CardTitle className="mt-2">{category.title}</CardTitle>
                       <CardDescription>
                         {category.content.length} procedure{category.content.length > 1 ? 's' : ''}
